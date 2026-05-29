@@ -1,0 +1,36 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [ main ]  # Alleen bij pushes naar main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Copy entire repo to VPS via SFTP
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          source: "."
+          target: ${{ secrets.REMOTE_APP_PATH }}
+          recursive: true
+      
+      - name: SSH into VPS and rebuild containers
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd ${{ secrets.REMOTE_APP_PATH }}
+            docker compose down
+            docker compose up -d --build
