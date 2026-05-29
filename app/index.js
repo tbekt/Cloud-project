@@ -5,6 +5,6 @@ const server = http.createServer((req, res) => {
     res.end('<h1>Taner project werkt!!!! </h1><p>De website is live via Docker en Caddy.</p>');
 });
 
-server.listen(3000, () => {
+server.listen(3000, '0.0.0.0', () => {
     console.log('App draait op poort 3000');
 });
