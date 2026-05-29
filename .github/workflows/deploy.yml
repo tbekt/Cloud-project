@@ -2,7 +2,7 @@ name: Deploy website
 
 on:
   push:
-    branches: [ main ]  # Alleen bij pushes naar main branch
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -12,8 +12,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Copy entire repo to VPS via SFTP
-        uses: appleboy/scp-action@v0.1.0
+      - name: Copy files to VPS via SCP
+        uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -21,10 +21,11 @@ jobs:
           port: 22
           source: "."
           target: ${{ secrets.REMOTE_APP_PATH }}
-          recursive: true
+          strip_components: 0
+          overwrite: true
       
-      - name: SSH into VPS and rebuild containers
-        uses: appleboy/ssh-action@master
+      - name: SSH into VPS and restart containers
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
